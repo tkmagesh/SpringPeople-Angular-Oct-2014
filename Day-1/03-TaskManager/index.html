@@ -16,40 +16,42 @@
     </style>
     <script>
     function taskController($scope){
-        $scope.list = [];
-        $scope.add = function(taskName){
-            var newTask = {
-                name : taskName,
-                isCompleted : false,
-                toggle : function(){
-                    this.isCompleted = !this.isCompleted;
-                }
-            };
-            $scope.list.push(newTask);
-        };
-        $scope.getCompletedCount = function(){
-            return $scope.list.filter(function(task){
-                return task.isCompleted;
-            }).length;
-        };
-        $scope.removeCompleted = function(){
-            $scope.list = $scope.list.filter(function(task){
-                return !task.isCompleted;
-            });
-        };
+        $scope.tasks = {
+            list : [],
+            add : function(taskName){
+                var newTask = {
+                    name : taskName,
+                    isCompleted : false,
+                    toggle : function(){
+                        this.isCompleted = !this.isCompleted;
+                    }
+                };
+                this.list.push(newTask);
+            },
+            getCompletedCount : function(){
+                return this.list.filter(function(task){
+                    return task.isCompleted;
+                }).length;
+            },
+            removeCompleted : function(){
+                this.list = this.list.filter(function(task){
+                    return !task.isCompleted;
+                });
+            }
+        }
     }
     
     </script>
 </head>
 <body ng-app ng-controller="taskController">
-    <h1>Task Manager <sup>(<span class="completed">{{getCompletedCount()}}</span> / {{list.length}})</sup></h1>
+    <h1>Task Manager <sup>(<span class="completed">{{tasks.getCompletedCount()}}</span> / {{tasks.list.length}})</sup></h1>
     <div class="content">
         <label for="txtTask">Task :</label>
         <input type="text" ng-model="newTaskName">
-        <input type="button" value="Add Task" ng-click="add(newTaskName)">
-        <input type="button" value="Remove Completed" ng-click="removeCompleted()">
+        <input type="button" value="Add Task" ng-click="tasks.add(newTaskName)">
+        <input type="button" value="Remove Completed" ng-click="tasks.removeCompleted()">
         <ul>
-            <li ng-repeat="task in list track by $index"
+            <li ng-repeat="task in tasks.list track by $index"
                 ng-click="task.toggle()"
                 ng-class="{completed : task.isCompleted}"
                 >{{task}}</li>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scope in nested controllers</title>
+    <style>
+        div {
+            padding : 20px;
+            margin: 20px;
+            border-radius: 10px;
+        }
+        .parent{
+            border : 2px solid blue;
+            background-color: lightblue;
+        }
+        .child{
+            border : 2px solid red;
+            background-color: lightpink;
+        }
+    </style>
+    <script src="angular.js"></script>
+    <script>
+    function parentController($scope){
+        $scope.data = {
+            name : ''
+        };
+    }
+    function childController($scope){
+        
+    }
+    </script>
+</head>
+<body ng-app>
+    <div class="parent" ng-controller="parentController">
+        <input type="text" ng-model="data.name">
+        {{data.name}}
+        <div class="child" ng-controller="childController">
+            <input type="text" ng-model="data.name">
+            {{data.name}}
+        </div>
+    </div>
+</body>
+</html>
