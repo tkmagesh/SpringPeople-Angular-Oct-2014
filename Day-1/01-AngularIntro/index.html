@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Angular Introduction</title>
+    <style>
+        .morningGreetMsg {
+            color : green
+        }
+        .eveningGreetMsg {
+            color : red
+        }
+    </style>
     <script src="angular.js"></script>
     <script>
     function greetController($scope){
@@ -10,7 +18,14 @@
         $scope.lastName = "Kannan";
 
         $scope.greet = function (){
-            $scope.greetMsg = "Hi " + $scope.firstName + " " + $scope.lastName;
+            var hour = new Date().getHours();
+            if (hour < 12){
+                $scope.greetStyle = "morningGreetMsg";
+                $scope.greetMsg = "Good Morning!!";
+            } else {
+                $scope.greetStyle = "eveningGreetMsg";
+                $scope.greetMsg = "Good Evening!!";
+            }
         }
     }
     </script>
@@ -20,7 +35,7 @@
     <input type="text" ng-model="firstName">
     <input type="text" ng-model="lastName">
     <input type="button" value="Greet" ng-click="greet()">
-    <div></div>   
+    <div ng-class="greetStyle">{{greetMsg}}</div>   
    </div>
    
 </body>
