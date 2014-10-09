@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="taskApp">
 <head>
     <meta charset="UTF-8">
     <title>Task Manager</title>
@@ -15,35 +15,45 @@
         }
     </style>
     <script>
-    function taskController($scope){
-        $scope.tasks = {
-            list : [],
-            add : function(taskName){
-                var newTask = {
-                    name : taskName,
-                    isCompleted : false,
-                    toggle : function(){
-                        this.isCompleted = !this.isCompleted;
-                    }
-                };
-                this.list.push(newTask);
-            },
-            getCompletedCount : function(){
-                return this.list.filter(function(task){
-                    return task.isCompleted;
-                }).length;
-            },
-            removeCompleted : function(){
-                this.list = this.list.filter(function(task){
-                    return !task.isCompleted;
-                });
+        
+        var taskApp = angular.module('taskApp',[]);
+        taskApp.factory('Task',function(){
+            function Task(name){
+                this.name = name;
+                this.isCompleted = false;
             }
-        }
-    }
+            Task.prototype.toggle = function(){
+                this.isCompleted = !this.isCompleted;
+            }
+            return Task;
+        });
+        taskApp.controller('taskController',function ($scope, Task){
+            $scope.tasks = {
+                list : [],
+                add : function(taskName){
+                    var newTask = new Task(taskName);
+                    this.list.push(newTask);
+                },
+                getCompletedCount : function(){
+                    return this.list.filter(function(task){
+                        return task.isCompleted;
+                    }).length;
+                },
+                removeCompleted : function(){
+                    this.list = this.list.filter(function(task){
+                        return !task.isCompleted;
+                    });
+                }
+            }
+        });
+    
+    
+        
+    
     
     </script>
 </head>
-<body ng-app ng-controller="taskController">
+<body  ng-controller="taskController">
     <h1>Task Manager <sup>(<span class="completed">{{tasks.getCompletedCount()}}</span> / {{tasks.list.length}})</sup></h1>
     <div class="content">
         <label for="txtTask">Task :</label>
