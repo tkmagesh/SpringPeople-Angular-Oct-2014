@@ -27,8 +27,15 @@
             }
             return Task;
         });
+        utilsModule.filter('trimText',function(){
+            return function(data, trimLength){
+                data = data || "";
+                return data.length < trimLength ? data : data.substr(0,trimLength) + "...";
+            };
+        });
         
         var taskApp = angular.module('taskApp',['utils']);
+        
         taskApp.service("taskStorage",function($window,Task){
             this.saveTask = function(task){
                 $window.localStorage.setItem(
@@ -50,13 +57,12 @@
             }
         });
         
-        taskApp.controller('taskController',function ($scope, Task, taskStorage){
-            console.dir(taskStorage);
+        taskApp.controller('taskController',['$scope', 'Task', 'taskStorage',function ($scope, Task, ts){
             $scope.tasks = {
-                list : taskStorage.getAllTasks(),
+                list : ts.getAllTasks(),
                 add : function(taskName){
                     var newTask = new Task({name : taskName});
-                    taskStorage.saveTask(newTask);         
+                    ts.saveTask(newTask);         
                     this.list.push(newTask);
                 },
                 getCompletedCount : function(){
@@ -67,30 +73,26 @@
                 removeCompleted : function(){
                     this.list.forEach(function(task,index){
                         if (task.isCompleted){
-                            taskStorage.removeTask(task);
+                            ts.removeTask(task);
                             this.list.splice(index,1);
                         }
                     });
                 },
                 toggleCompletion : function(task){
-                    
                     task.toggle();
-                    taskStorage.saveTask(task);
+                    ts.saveTask(task);
                 }
             }
             
-        });
-    
-    
+        }]);
         
-    
-    
     </script>
 </head>
 <body  ng-controller="taskController">
     <h1>Task Manager <sup>(<span class="completed">{{tasks.getCompletedCount()}}</span> / {{tasks.list.length}})</sup></h1>
     <hr>
     Search : <input type="search" ng-model="searchTask.name">
+    Task Name Length : <input type="range" min="10" max="50" ng-model="trimLength">   
     <hr>
     <div class="content">
         <label for="txtTask">Task :</label>
@@ -101,7 +103,7 @@
             <li ng-repeat="task in tasks.list | filter:searchTask track by $index"
                 ng-click="tasks.toggleCompletion(task)"
                 ng-class="{completed : task.isCompleted}"
-                >{{task.name }}</li>
+                >{{task.name | trimText:trimLength}}</li>
         </ul>
     </div>
 </body>
