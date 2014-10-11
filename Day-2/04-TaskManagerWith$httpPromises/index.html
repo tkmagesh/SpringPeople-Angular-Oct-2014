@@ -17,9 +17,10 @@
     <script>
         var utilsModule = angular.module('utils',[]);
         utilsModule.factory('Task',function(){
-            function Task(name){
-                this.name = name;
-                this.isCompleted = false;
+            function Task(defaults){
+                this.id = defaults.id || -1;
+                this.name = defaults.name || "";
+                this.isCompleted = defaults.isCompleted || false;
             }
             Task.prototype.toggle = function(){
                 this.isCompleted = !this.isCompleted;
@@ -28,12 +29,29 @@
         });
         
         var taskApp = angular.module('taskApp',['utils']);
+        taskApp.factory('taskService',function($http, Task, $q){
+            return {
+                getAll : function(){
+                    var defered = $q.defer();
+                
+                    var p = $http({method : "get", url : '/tasksData.json'});
+                    p.then(function(response){
+                        var result = response.data.map(function(o){
+                            return new Task(o);
+                        });
+                        defered.resolve(result);
+                    });
+                    return defered.promise;
+                    
+                }
+            };
+        });
         
-        taskApp.controller('taskController',function ($scope, Task, $http){
+        taskApp.controller('taskController',function ($scope, Task, taskService){
             $scope.tasks = {
                 list : [],
                 add : function(taskName){
-                    var newTask = new Task(taskName);
+                    var newTask = new Task({name : taskName});
                     this.list.push(newTask);
                 },
                 getCompletedCount : function(){
@@ -45,12 +63,16 @@
                     this.list = this.list.filter(function(task){
                         return !task.isCompleted;
                     });
+                },
+                toggleCompletion : function(task){
+                    task.toggle();
+                    //persist the changes to the server;
                 }
+                
             }
-            var p = $http({method : "get", url : '/tasksData.json'});
-            p.then(function(response){
-                console.log(response.data);
-                $scope.tasks.list = response.data;
+           
+            taskService.getAll().then(function(tasks){
+               $scope.tasks.list = tasks;
             });
             
         });
@@ -73,7 +95,7 @@
         <input type="button" value="Remove Completed" ng-click="tasks.removeCompleted()">
         <ul>
             <li ng-repeat="task in tasks.list | filter:searchTask"
-                ng-click="task.toggle()"
+                ng-click="tasks.toggleCompletion(task)"
                 ng-class="{completed : task.isCompleted}"
                 >{{task.name }}</li>
         </ul>
